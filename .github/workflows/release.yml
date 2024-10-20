@@ -1,0 +1,43 @@
+name: Recreate Release and Tag
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if necessary
+
+jobs:
+  recreate_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set Up GitHub CLI
+        uses: cli/cli@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete Release
+        id: delete_release
+        run: |
+          RELEASE_NAME="0.3.18"  # Change this to your release name
+          TAG_NAME="0.3.18"  # Change this to your tag name
+
+          # Delete the release
+          gh release delete "$RELEASE_NAME" --yes || echo "Release not found"
+
+          # Delete the tag
+          git tag -d "$TAG_NAME" || echo "Tag not found"
+          git push origin :refs/tags/"$TAG_NAME" || echo "Remote tag not found"
+
+      - name: Create New Release
+        run: |
+          NEW_VERSION="0.3.18"  # Update to the new version if needed
+
+          # Create a new tag
+          git tag "$NEW_VERSION"
+          git push origin "$NEW_VERSION"
+
+          # Create the release
+          gh release create "$NEW_VERSION" --title "$NEW_VERSION" --notes "Release notes here."
