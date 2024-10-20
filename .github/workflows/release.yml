@@ -3,7 +3,7 @@ name: Recreate Release and Tag
 on:
   push:
     branches:
-      - main  # Change this to your default branch if necessary
+      - calamares  # Change this to your default branch if necessary
 
 jobs:
   recreate_release:
